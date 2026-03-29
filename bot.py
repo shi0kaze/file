@@ -10,9 +10,10 @@ from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, ConversationHandler, CallbackQueryHandler
 
+
 sys.stdout = sys.stderr
 
-TOKEN = "ВАШ_НОВЫЙ_ТОКЕН_ЗДЕСЬ"  
+TOKEN = "8624522979:AAGNZsOGtMnAO38BQNHnWffkUjEEj7Vmuyg"  
 BOT_USERNAME = "rezhuBlyadeyBot"
 ADMIN_ID = 7754721456
 
@@ -28,6 +29,7 @@ SELECT_CATEGORY, ENTER_TITLE = range(2)
 
 logging.basicConfig(level=logging.INFO)
 
+# === БАЗА ДАННЫХ ===
 def init_db():
     conn = sqlite3.connect('files.db')
     cursor = conn.cursor()
@@ -89,6 +91,7 @@ def generate_code(length=8):
 
 pending_files = {}
 
+# === ОБРАБОТЧИКИ БОТА ===
 async def start(update: Update, context: CallbackContext):
     args = context.args
     if args:
@@ -107,11 +110,11 @@ async def start(update: Update, context: CallbackContext):
             await update.message.reply_text("❌ Ссылка недействительна или файл удалён.")
     else:
         await update.message.reply_text(
-            "Привет! Я бот-файлообменник.\n"
-            "Отправьте мне фото или видео, затем выберите категорию и введите название.\n\n"
+            "Привет уебище! Я РежуБлядей-файлообменник.\n"
+            "Отправьте мне чернуху, затем выберите категорию и введите название.\n\n"
             "Команды:\n"
             "/list - список всех файлов (только админ)\n"
-            "/myfiles - список ваших файлов\n"
+            "/myfiles - список ваших ебаных файлов\n"
             "/cancel - отменить загрузку"
         )
 
@@ -135,7 +138,7 @@ async def handle_file(update: Update, context: CallbackContext):
     for key, cat_name in CATEGORIES.items():
         keyboard.append([InlineKeyboardButton(cat_name, callback_data=f"cat_{key}")])
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await message.reply_text("Выберите категорию для этого файла:", reply_markup=reply_markup)
+    await message.reply_text("Выберите ебаную категорию для этого файла:", reply_markup=reply_markup)
     return SELECT_CATEGORY
 
 async def category_selected(update: Update, context: CallbackContext):
@@ -147,13 +150,13 @@ async def category_selected(update: Update, context: CallbackContext):
     category = CATEGORIES.get(cat_key, "РАЗНОЕ")
 
     if user.id not in pending_files:
-        await query.edit_message_text("❌ Что-то пошло не так. Попробуйте отправить файл заново.")
+        await query.edit_message_text("❌ Что-то пошло не так. Попробуйте отправить файл заново или пойти нахуй.")
         return ConversationHandler.END
 
     file_id, file_type, _, _ = pending_files[user.id]
     pending_files[user.id] = (file_id, file_type, category, None)
 
-    await query.edit_message_text("Введите название для этого файла (текстом).")
+    await query.edit_message_text("Введите название для этой чернухи  (текстом).")
     return ENTER_TITLE
 
 async def title_entered(update: Update, context: CallbackContext):
@@ -289,6 +292,7 @@ async def myfiles(update: Update, context: CallbackContext):
     else:
         await update.message.reply_text(message_text, parse_mode="Markdown", disable_web_page_preview=True)
 
+# === ЗАПУСК ===
 def run_bot():
     app = Application.builder().token(TOKEN).build()
     conv_handler = ConversationHandler(
@@ -305,7 +309,7 @@ def run_bot():
     app.add_handler(CommandHandler("myfiles", myfiles))
     app.run_polling()
 
-flask_app = Flask(__name__)
+flask_app = Flask(name)
 
 @flask_app.route('/')
 def index():
@@ -315,9 +319,11 @@ def index():
 def health():
     return "OK"
 
-if __name__ == 'main':
+if name == 'main':
     init_db()
     bot_thread = Thread(target=run_bot)
     bot_thread.start()
-    port = int(os.environ.get("PORT", 5000))
+    # === ГЛАВНОЕ ИСПРАВЛЕНИЕ: явно привязываемся к порту Render ===
+    port = int(os.environ.get("PORT", 10000))
+    print(f"Starting Flask server on port {port}")
     flask_app.run(host='0.0.0.0', port=port)
