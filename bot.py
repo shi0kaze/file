@@ -309,7 +309,7 @@ def run_bot():
     app.add_handler(CommandHandler("myfiles", myfiles))
     app.run_polling()
 
-flask_app = Flask(name)
+flask_app = Flask(__name__)
 
 @flask_app.route('/')
 def index():
@@ -319,7 +319,7 @@ def index():
 def health():
     return "OK"
 
-if name == 'main':
+if __name__ == 'main':
     init_db()
     bot_thread = Thread(target=run_bot)
     bot_thread.start()
