@@ -1,3 +1,4 @@
+import sys
 import os
 import sqlite3
 import logging
@@ -9,7 +10,9 @@ from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, ConversationHandler, CallbackQueryHandler
 
-TOKEN = "8624522979:AAHkhQXIxKqONtsAAEea_YbVWf44jckDyTk"
+sys.stdout = sys.stderr
+
+TOKEN = "ВАШ_НОВЫЙ_ТОКЕН_ЗДЕСЬ"  
 BOT_USERNAME = "rezhuBlyadeyBot"
 ADMIN_ID = 7754721456
 
@@ -23,7 +26,7 @@ CATEGORIES = {
 
 SELECT_CATEGORY, ENTER_TITLE = range(2)
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 def init_db():
     conn = sqlite3.connect('files.db')
@@ -302,7 +305,7 @@ def run_bot():
     app.add_handler(CommandHandler("myfiles", myfiles))
     app.run_polling()
 
-flask_app = Flask(__name__)
+flask_app = Flask(name)
 
 @flask_app.route('/')
 def index():
@@ -312,7 +315,7 @@ def index():
 def health():
     return "OK"
 
-if __name__ == 'main':
+if name == 'main':
     init_db()
     bot_thread = Thread(target=run_bot)
     bot_thread.start()
